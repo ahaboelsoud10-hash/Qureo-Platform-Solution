@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سجل الطلاب والمدفوعات | أ. أحمد حسن أبو السعود</title>
+<style>
+:root{
+  --bg0:#01060f; --bg1:#03102a; --bg2:#041b3a;
+  --card:#050f22; --card2:#071833;
+  --line:rgba(79,195,247,.18);
+  --accent:#2196f3; --accent2:#4fc3f7; --accent3:#8ee1ff;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --purple:#a855f7;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Segoe UI","Tahoma",system-ui,sans-serif;
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 550px at 85% -10%, rgba(33,150,243,.16), transparent 60%),
+    radial-gradient(900px 500px at 5% 110%, rgba(20,80,160,.18), transparent 60%),
+    linear-gradient(160deg,#000308 0%, #01060f 25%, #03102a 55%, #041b3a 80%, #052048 100%);
+  background-attachment:fixed;
+  color:#dceaf7; padding:22px 14px 40px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1500px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+
+#loginScreen{
+  position:fixed;inset:0;z-index:5000;display:grid;place-items:center;padding:20px;
+  background:
+    radial-gradient(900px 500px at 80% 0%, rgba(33,150,243,.22), transparent 55%),
+    radial-gradient(700px 450px at 10% 100%, rgba(20,80,160,.25), transparent 55%),
+    linear-gradient(160deg,#000308 0%, #01060f 30%, #03102a 60%, #041b3a 100%);
+  transition:opacity .35s, visibility .35s;
+}
+#loginScreen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.login-box{
+  width:100%;max-width:430px;
+  background:linear-gradient(145deg, rgba(5,15,34,.97), rgba(3,10,26,.98));
+  border:1px solid rgba(79,195,247,.3);border-radius:24px;padding:38px 30px 32px;
+  box-shadow:0 30px 70px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+  position:relative;overflow:hidden;
+  animation:pop .5s cubic-bezier(.2,1.3,.5,1);
+}
+@keyframes pop{from{opacity:0;transform:translateY(30px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+.login-logo{
+  width:80px;height:80px;margin:0 auto 20px;border-radius:22px;
+  display:grid;place-items:center;font-size:38px;
+  background:linear-gradient(135deg,#0a4d8c,#2196f3);
+  box-shadow:0 14px 34px rgba(33,150,243,.5), inset 0 2px 0 rgba(255,255,255,.15);
+}
+.login-box h1{text-align:center;font-size:22px;margin-bottom:8px;color:#fff}
+.login-box .sub{text-align:center;font-size:13.5px;color:#7fa8c9;margin-bottom:28px;line-height:1.6}
+.login-field{margin-bottom:16px;position:relative}
+.login-field label{display:block;font-size:13px;color:#8fb4d1;font-weight:700;margin-bottom:8px}
+.login-field input{
+  width:100%;padding:14px 46px 14px 14px;border-radius:13px;font-size:15px;
+  background:rgba(1,6,15,.85);color:#eaf6ff;font-family:inherit;
+  border:1px solid rgba(79,195,247,.2);transition:.2s;outline:none;
+}
+.login-field input:focus{
+  border-color:#4fc3f7;box-shadow:0 0 0 4px rgba(79,195,247,.15);
+  background:rgba(1,6,15,.98);
+}
+.login-field .icon-in{position:absolute;left:14px;bottom:14px;font-size:17px;opacity:.5;pointer-events:none}
+.login-btn{
+  width:100%;padding:15px;border-radius:13px;font-size:16px;font-weight:800;
+  border:none;cursor:pointer;font-family:inherit;margin-top:8px;
+  background:linear-gradient(135deg,#1565c0,#2196f3,#4fc3f7);
+  color:#fff;letter-spacing:.3px;
+  box-shadow:0 12px 30px rgba(33,150,243,.4);transition:.2s;
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(33,150,243,.55)}
+.login-error{
+  background:rgba(239,68,68,.12);color:#ff9d9d;
+  border:1px solid rgba(239,68,68,.4);
+  padding:11px 14px;border-radius:11px;font-size:13.5px;font-weight:700;
+  text-align:center;margin-bottom:16px;display:none;animation:shake .4s;
+}
+.login-error.show{display:block}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.login-footer{text-align:center;font-size:12px;color:#5a7c9a;margin-top:22px;line-height:1.7}
+.login-footer b{background:linear-gradient(90deg,#4fc3f7,#8ee1ff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+
+#app{display:flex;flex-direction:column;gap:20px}
+#app.locked{display:none}
+
+header.top{
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(135deg, rgba(5,15,34,.95), rgba(7,24,51,.85));
+  border:1px solid var(--line);border-radius:20px;padding:20px 24px;
+  backdrop-filter:blur(10px);
+  box-shadow:0 14px 40px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.logo{
+  width:56px;height:56px;flex:none;border-radius:16px;
+  display:grid;place-items:center;font-size:28px;
+  background:linear-gradient(135deg,#0a4d8c,#2196f3);
+  box-shadow:0 8px 22px rgba(33,150,243,.45);
+}
+.titles h1{
+  font-size:clamp(19px,2.6vw,26px);
+  background:linear-gradient(90deg,#ffffff,#8ee1ff);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.titles p{font-size:13px;color:#7fa8c9;margin-top:4px}
+.top-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{
+  border:none;border-radius:12px;padding:11px 18px;font-size:14.5px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:.18s;
+  display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+}
+.btn.primary{background:linear-gradient(135deg,#1565c0,#2196f3);color:#fff;box-shadow:0 8px 20px rgba(33,150,243,.4)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(33,150,243,.55)}
+.btn.ghost{background:rgba(33,150,243,.08);color:#8ee1ff;border:1px solid var(--line)}
+.btn.ghost:hover{background:rgba(33,150,243,.2)}
+.btn.danger{background:rgba(239,68,68,.12);color:#ff9d9d;border:1px solid rgba(239,68,68,.4)}
+.btn.danger:hover{background:rgba(239,68,68,.28)}
+.btn:active{transform:scale(.97)}
+
+.card{
+  background:linear-gradient(135deg, rgba(5,15,34,.92), rgba(4,15,34,.85));
+  border:1px solid var(--line);border-radius:18px;padding:20px;
+  backdrop-filter:blur(8px);box-shadow:0 12px 32px rgba(0,0,0,.55);
+}
+.card h2{
+  font-size:16.5px;color:#8ee1ff;margin-bottom:16px;
+  display:flex;align-items:center;gap:9px;font-weight:800;
+}
+.card h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(79,195,247,.4),transparent)}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:14px}
+.stat{
+  border-radius:16px;padding:16px 14px;text-align:center;
+  background:linear-gradient(140deg, rgba(7,24,51,.95), rgba(3,10,26,.9));
+  border:1px solid var(--line);box-shadow:0 10px 26px rgba(0,0,0,.5);
+  transition:.2s;
+}
+.stat.clickable{cursor:pointer}
+.stat.clickable:hover{transform:translateY(-4px);border-color:rgba(79,195,247,.6)}
+.stat.active{
+  border-color:rgba(79,195,247,.9);
+  box-shadow:0 0 0 3px rgba(79,195,247,.2), 0 12px 30px rgba(33,150,243,.35);
+  background:linear-gradient(140deg, rgba(10,60,110,.95), rgba(5,20,45,.9));
+}
+.stat .num{font-size:25px;font-weight:800;color:#8ee1ff;line-height:1.3}
+.stat .lbl{font-size:12.5px;color:#8fb4d1;margin-top:4px}
+.stat.g .num{color:#5ef08e}
+.stat.r .num{color:#ff9d9d}
+.stat.y .num{color:#ffcd6b}
+.stat.p .num{color:#d8a6ff}
+.stat.big .num{font-size:32px;color:#4fc3f7}
+.stat .hint{font-size:10.5px;color:#5a7c9a;margin-top:6px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+.field label{font-size:13px;color:#8fb4d1;font-weight:700}
+input,select,textarea{
+  width:100%;padding:11px 13px;border-radius:11px;font-family:inherit;font-size:14.5px;
+  background:rgba(1,6,15,.85);color:#eaf6ff;
+  border:1px solid var(--line);transition:.18s;outline:none;
+}
+input::placeholder{color:#5a7c9a}
+input:focus,select:focus,textarea:focus{
+  border-color:#4fc3f7;box-shadow:0 0 0 3px rgba(79,195,247,.15);
+  background:rgba(1,6,15,.98);
+}
+select option{background:#041b3a;color:#eaf6ff}
+.form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+
+.status-tabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.status-tab{
+  padding:16px 14px;border-radius:14px;cursor:pointer;
+  border:2px solid rgba(79,195,247,.15);
+  background:linear-gradient(140deg, rgba(7,24,51,.75), rgba(3,10,26,.7));
+  transition:.2s;font-family:inherit;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.status-tab:hover{transform:translateY(-3px);border-color:rgba(79,195,247,.5)}
+.status-tab .ic{font-size:26px;line-height:1}
+.status-tab .tt{font-size:14.5px;font-weight:800;color:#eaf6ff}
+.status-tab .cnt{font-size:22px;font-weight:800;line-height:1}
+.status-tab[data-status="all"].active{border-color:rgba(79,195,247,.9);background:linear-gradient(140deg, rgba(10,60,110,.9), rgba(5,20,45,.85));box-shadow:0 0 0 3px rgba(79,195,247,.18);transform:translateY(-3px)}
+.status-tab[data-status="all"] .cnt{color:#4fc3f7}
+.status-tab[data-status="paid"].active{border-color:rgba(34,197,94,.9);background:linear-gradient(140deg, rgba(20,83,45,.75), rgba(5,20,45,.85));box-shadow:0 0 0 3px rgba(34,197,94,.18);transform:translateY(-3px)}
+.status-tab[data-status="paid"] .cnt{color:#5ef08e}
+.status-tab[data-status="partial"].active{border-color:rgba(245,158,11,.9);background:linear-gradient(140deg, rgba(120,53,15,.75), rgba(5,20,45,.85));box-shadow:0 0 0 3px rgba(245,158,11,.18);transform:translateY(-3px)}
+.status-tab[data-status="partial"] .cnt{color:#ffcd6b}
+.status-tab[data-status="unpaid"].active{border-color:rgba(239,68,68,.9);background:linear-gradient(140deg, rgba(127,29,29,.75), rgba(5,20,45,.85));box-shadow:0 0 0 3px rgba(239,68,68,.18);transform:translateY(-3px)}
+.status-tab[data-status="unpaid"] .cnt{color:#ff9d9d}
+.status-tab[data-status="free"].active{border-color:rgba(168,85,247,.9);background:linear-gradient(140deg, rgba(74,29,120,.75), rgba(5,20,45,.85));box-shadow:0 0 0 3px rgba(168,85,247,.18);transform:translateY(-3px)}
+.status-tab[data-status="free"] .cnt{color:#d8a6ff}
+
+.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:end}
+@media(max-width:760px){.toolbar{grid-template-columns:1fr}}
+
+.table-card{padding:0;overflow:hidden}
+.table-head{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:18px 20px 14px;
+  background:linear-gradient(135deg, rgba(7,24,51,.6), transparent);
+  border-bottom:1px solid var(--line);
+}
+.count-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:14px;font-weight:800;color:#0a1420;
+  background:linear-gradient(135deg,#4fc3f7,#8ee1ff);
+  padding:7px 16px;border-radius:22px;
+  box-shadow:0 6px 18px rgba(79,195,247,.4);
+}
+.count-badge .n{font-size:17px}
+.results{margin-inline-start:auto;font-size:13px;color:#8ee1ff;background:rgba(79,195,247,.1);
+  border:1px solid var(--line);padding:5px 12px;border-radius:20px}
+.table-scroll{overflow-x:auto;max-height:65vh;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  background:linear-gradient(135deg,#052048,#083564);
+  color:#8ee1ff;padding:11px 9px;text-align:right;font-size:12px;font-weight:800;
+  position:sticky;top:0;z-index:5;white-space:nowrap;cursor:pointer;
+  border-bottom:2px solid rgba(79,195,247,.4);user-select:none;
+}
+thead th:hover{color:#fff;background:linear-gradient(135deg,#083564,#0a4880)}
+thead th .arrow{opacity:.4;font-size:10px}
+thead th.active .arrow{opacity:1;color:#4fc3f7}
+th.no-sort{cursor:default}
+th.no-sort:hover{background:linear-gradient(135deg,#052048,#083564);color:#8ee1ff}
+tbody td{padding:10px 9px;border-bottom:1px solid rgba(79,195,247,.09);white-space:nowrap;color:#c5dcf0;font-size:13px}
+tbody tr{transition:.15s}
+tbody tr:hover{background:rgba(33,150,243,.06)}
+tbody tr:last-child td{border-bottom:none}
+.name-cell{font-weight:700;color:#fff}
+.phone-cell{direction:ltr;text-align:right;font-family:monospace;font-size:13px;letter-spacing:.5px;color:#9fd8ff}
+.login-cell{
+  font-family:monospace;font-size:11.5px;direction:ltr;text-align:right;
+  color:#9fd8ff;line-height:1.6;
+}
+.login-cell .u{color:#8ee1ff}
+.login-cell .p{color:#ffcd6b}
+.school-cell{color:#b8d4e8;font-size:12.5px}
+.study-cell{color:#d4c5e8;font-size:12.5px}
+.money{font-weight:700}
+.money.due{color:#ffcd6b}
+.money.paid{color:#5ef08e}
+.money.rest{color:#ff9d9d}
+.money.free{color:#d8a6ff;font-weight:800}
+.empty{text-align:center;padding:46px 20px !important;color:#5a7c9a;font-size:15px}
+
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:20px;font-size:12px;font-weight:800;white-space:nowrap;
+}
+.badge.paid{background:rgba(34,197,94,.14);color:#5ef08e;border:1px solid rgba(34,197,94,.4)}
+.badge.partial{background:rgba(245,158,11,.14);color:#ffcd6b;border:1px solid rgba(245,158,11,.4)}
+.badge.unpaid{background:rgba(239,68,68,.14);color:#ff9d9d;border:1px solid rgba(239,68,68,.4)}
+.badge.free{background:rgba(168,85,247,.16);color:#d8a6ff;border:1px solid rgba(168,85,247,.5)}
+.badge.curio{
+  background:rgba(20,120,220,.16);color:#7cc6ff;border:1px solid rgba(20,120,220,.5);
+  font-size:11.5px;
+}
+.badge.culture{
+  background:rgba(245,158,11,.13);color:#ffcd6b;border:1px solid rgba(245,158,11,.4);
+  font-size:11.5px;
+}
+.free-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;margin-inline-start:4px;
+}
+
+.row-actions{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.mini{
+  border:1px solid var(--line);background:rgba(33,150,243,.06);
+  width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:14px;
+  display:grid;place-items:center;transition:.18s;flex:none;
+}
+.mini:hover{background:rgba(33,150,243,.22);transform:translateY(-2px)}
+.mini.del:hover{background:rgba(239,68,68,.28);border-color:rgba(239,68,68,.55)}
+.mini.freebtn{background:rgba(168,85,247,.1);border-color:rgba(168,85,247,.4)}
+.mini.freebtn:hover{background:rgba(168,85,247,.28)}
+.mini.freebtn.active{background:rgba(168,85,247,.35);border-color:rgba(168,85,247,.9);box-shadow:0 0 12px rgba(168,85,247,.4)}
+
+.pay-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:7px 11px;border-radius:9px;font-size:12px;font-weight:800;
+  cursor:pointer;font-family:inherit;transition:.18s;white-space:nowrap;
+  border:1px solid transparent;flex:none;
+}
+.pay-btn.pay{background:rgba(34,197,94,.12);color:#5ef08e;border-color:rgba(34,197,94,.45)}
+.pay-btn.pay:hover{background:rgba(34,197,94,.28);transform:translateY(-2px)}
+.pay-btn.unpay{background:rgba(239,68,68,.12);color:#ff9d9d;border-color:rgba(239,68,68,.45)}
+.pay-btn.unpay:hover{background:rgba(239,68,68,.28);transform:translateY(-2px)}
+.pay-btn:disabled{opacity:.35;cursor:not-allowed;transform:none !important}
+
+footer{
+  text-align:center;padding:26px 16px 10px;margin-top:6px;
+  border-top:1px solid var(--line);
+}
+footer .credit{
+  font-size:16px;font-weight:800;letter-spacing:.3px;
+  background:linear-gradient(90deg,#4fc3f7,#8ee1ff,#ffffff,#8ee1ff,#4fc3f7);
+  background-size:220% auto;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shine 5s linear infinite;
+}
+@keyframes shine{to{background-position:220% center}}
+footer .sub{font-size:12px;color:#5a7c9a;margin-top:8px}
+
+#toast{
+  position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:linear-gradient(135deg,#052048,#0a4880);
+  color:#fff;padding:13px 24px;border-radius:14px;font-weight:700;font-size:14.5px;
+  border:1px solid rgba(79,195,247,.5);box-shadow:0 14px 34px rgba(0,0,0,.7);
+  transition:.35s cubic-bezier(.2,1.4,.5,1);z-index:9999;pointer-events:none;
+  max-width:90vw;text-align:center;
+}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.ok{background:linear-gradient(135deg,#14532d,#15803d);border-color:#5ef08e}
+#toast.err{background:linear-gradient(135deg,#7f1d1d,#991b1b);border-color:#ff9d9d}
+#toast.info{background:linear-gradient(135deg,#0c4a6e,#0369a1);border-color:#4fc3f7}
+#toast.free{background:linear-gradient(135deg,#4a1d78,#6b21a8);border-color:#d8a6ff}
+
+.overlay{
+  position:fixed;inset:0;background:rgba(0,3,8,.88);backdrop-filter:blur(5px);
+  display:none;place-items:center;z-index:4000;padding:18px;
+}
+.overlay.show{display:grid}
+.modal{
+  background:linear-gradient(140deg,#041b3a,#01060f);
+  border:1px solid rgba(79,195,247,.4);border-radius:20px;
+  padding:28px;max-width:420px;width:100%;text-align:center;
+  box-shadow:0 25px 60px rgba(0,0,0,.85);
+}
+.modal .icon{font-size:46px;margin-bottom:12px}
+.modal h3{font-size:19px;margin-bottom:10px;color:#fff}
+.modal p{color:#8fb4d1;font-size:14px;line-height:1.7;margin-bottom:22px}
+.modal .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:rgba(1,6,15,.7)}
+::-webkit-scrollbar-thumb{background:linear-gradient(#1565c0,#2196f3);border-radius:10px}
+
+@media print{
+  body{background:#fff !important;color:#000;padding:0}
+  .no-print{display:none !important}
+  header.top,.card,footer{background:#fff !important;border:1px solid #bbb !important;
+    box-shadow:none !important;color:#000 !important;backdrop-filter:none}
+  .titles h1{color:#000 !important;-webkit-text-fill-color:#000}
+  .titles p,.stat .lbl{color:#444 !important}
+  .stat .num{color:#000 !important}
+  thead th{background:#e5e5e5 !important;color:#000 !important;border-bottom:2px solid #000}
+  tbody td{color:#000 !important;border-bottom:1px solid #ccc !important}
+  .table-scroll{max-height:none;overflow:visible}
+  .badge{border:1px solid #000 !important;color:#000 !important;background:none !important}
+  .count-badge{background:#000 !important;color:#fff !important}
+  footer .credit{color:#000 !important;-webkit-text-fill-color:#000;animation:none}
+  #loginScreen{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🔐</div>
+    <h1>سجل الطلاب والمدفوعات</h1>
+    <p class="sub">من فضلك سجّل الدخول للوصول إلى بيانات الطلاب</p>
+    <div class="login-error" id="loginError">⚠️ اسم المستخدم أو كلمة المرور غير صحيحة</div>
+    <form id="loginForm" autocomplete="off">
+      <div class="login-field">
+        <label for="lgUser">اسم المستخدم</label>
+        <input type="text" id="lgUser" placeholder="ادخل اسم المستخدم" required>
+        <span class="icon-in">👤</span>
+      </div>
+      <div class="login-field">
+        <label for="lgPass">كلمة المرور</label>
+        <input type="password" id="lgPass" placeholder="ادخل كلمة المرور" required>
+        <span class="icon-in">🔑</span>
+      </div>
+      <button type="submit" class="login-btn">🚪 تسجيل الدخول</button>
+    </form>
+    <div class="login-footer">تصميم وتطوير<br><b>م. أحمد حسن أبو السعود</b></div>
+  </div>
+</div>
+
+<div class="wrap" id="app">
+
+  <header class="top no-print">
+    <div class="logo">📚</div>
+    <div class="titles">
+      <h1>سجل الطلاب والمدفوعات</h1>
+      <p>نظام إدارة الطلاب — حفظ تلقائي في المتصفح</p>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost" id="btnCsv">📊 تصدير Excel</button>
+      <button class="btn ghost" id="btnBackup">💾 نسخة احتياطية</button>
+      <button class="btn ghost" id="btnImport">📂 استيراد</button>
+      <button class="btn ghost" id="btnPrint">🖨️ طباعة</button>
+      <button class="btn danger" id="btnLogout">🚪 خروج</button>
+      <input type="file" id="fileInput" accept=".json" hidden>
+    </div>
+  </header>
+
+  <section class="stats no-print">
+    <div class="stat big clickable" data-filter="all">
+      <div class="num" id="stTotal">0</div>
+      <div class="lbl">عدد الطلاب المسجلين</div>
+      <div class="hint">انقر لعرض الكل</div>
+    </div>
+    <div class="stat g clickable" data-filter="paid">
+      <div class="num" id="stPaid">0</div>
+      <div class="lbl">دفعوا بالكامل</div>
+      <div class="hint">انقر للعرض</div>
+    </div>
+    <div class="stat y clickable" data-filter="partial">
+      <div class="num" id="stPartial">0</div>
+      <div class="lbl">دفع جزئي</div>
+      <div class="hint">انقر للعرض</div>
+    </div>
+    <div class="stat r clickable" data-filter="unpaid">
+      <div class="num" id="stUnpaid">0</div>
+      <div class="lbl">لم يدفعوا</div>
+      <div class="hint">انقر للعرض</div>
+    </div>
+    <div class="stat p clickable" data-filter="free">
+      <div class="num" id="stFree">0</div>
+      <div class="lbl">🎁 باقة مجانية</div>
+      <div class="hint">انقر للعرض</div>
+    </div>
+    <div class="stat g">
+      <div class="num" id="stCollected">0</div>
+      <div class="lbl">إجمالي المحصّل</div>
+    </div>
+    <div class="stat r">
+      <div class="num" id="stRemaining">0</div>
+      <div class="lbl">إجمالي المتأخرات</div>
+    </div>
+  </section>
+
+  <section class="card no-print">
+    <h2 id="formTitle">➕ إضافة طالب جديد</h2>
+    <form id="studentForm" autocomplete="off">
+      <div class="grid">
+        <div class="field">
+          <label>اسم الطالب *</label>
+          <input type="text" id="fName" required placeholder="مثال: أحمد محمد علي">
+        </div>
+        <div class="field">
+          <label>رقم التليفون</label>
+          <input type="tel" id="fPhone" placeholder="01xxxxxxxxx">
+        </div>
+        <div class="field">
+          <label>اسم المستخدم (للطالب)</label>
+          <input type="text" id="fUsername" placeholder="مثال: ahmed2024">
+        </div>
+        <div class="field">
+          <label>كلمة المرور (للطالب)</label>
+          <input type="text" id="fPassword" placeholder="كلمة مرور الطالب">
+        </div>
+        <div class="field">
+          <label>اسم المدرسة</label>
+          <input type="text" id="fSchool" placeholder="مثال: مدرسة الجيزة الثانوية">
+        </div>
+        <div class="field">
+          <label>يحل معه (اسم من يحل معه)</label>
+          <input type="text" id="fStudyWith" placeholder="اسم الشخص إن وجد">
+        </div>
+        <div class="field">
+          <label>السنة الدراسية</label>
+          <select id="fYear">
+            <option value="">— اختر السنة —</option>
+            <option value="الأول الثانوي">الأول الثانوي</option>
+            <option value="الثاني الثانوي">الثاني الثانوي</option>
+          </select>
+        </div>
+        <div class="field" id="platformField" style="display:none">
+          <label>المنصة / المادة</label>
+          <select id="fPlatform">
+            <option value="">— اختر —</option>
+            <option value="ثقافة مالية">ثقافة مالية</option>
+            <option value="منصة كوريو">منصة كوريو</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>التاريخ</label>
+          <input type="date" id="fDate">
+        </div>
+        <div class="field">
+          <label>المبلغ المطلوب (ج.م)</label>
+          <input type="number" id="fDue" min="0" step="0.01" value="0">
+        </div>
+        <div class="field">
+          <label>المبلغ المدفوع (ج.م)</label>
+          <input type="number" id="fPaid" min="0" step="0.01" value="0">
+        </div>
+        <div class="field full">
+          <label>ملاحظات</label>
+          <input type="text" id="fNotes" placeholder="اختياري...">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn primary" id="btnSubmit">➕ إضافة الطالب</button>
+        <button type="button" class="btn ghost" id="btnCancel" hidden>✖ إلغاء التعديل</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card no-print">
+    <h2>🔎 بحث وتصفية الطلاب</h2>
+    <div class="status-tabs">
+      <button type="button" class="status-tab active" data-status="all">
+        <span class="ic">👥</span><span class="tt">كل الطلاب</span><span class="cnt" id="tabAll">0</span>
+      </button>
+      <button type="button" class="status-tab" data-status="paid">
+        <span class="ic">✅</span><span class="tt">دفعوا بالكامل</span><span class="cnt" id="tabPaid">0</span>
+      </button>
+      <button type="button" class="status-tab" data-status="partial">
+        <span class="ic">◐</span><span class="tt">دفع جزئي</span><span class="cnt" id="tabPartial">0</span>
+      </button>
+      <button type="button" class="status-tab" data-status="unpaid">
+        <span class="ic">❌</span><span class="tt">لم يدفعوا</span><span class="cnt" id="tabUnpaid">0</span>
+      </button>
+      <button type="button" class="status-tab" data-status="free">
+        <span class="ic">🎁</span><span class="tt">باقة مجانية</span><span class="cnt" id="tabFree">0</span>
+      </button>
+    </div>
+    <div class="toolbar">
+      <div class="field">
+        <label>ابحث بالاسم / التليفون / المستخدم / المدرسة / من يحل معه</label>
+        <input type="search" id="fSearch" placeholder="اكتب أي جزء...">
+      </div>
+      <div class="field">
+        <label>السنة الدراسية</label>
+        <select id="fFilterYear">
+          <option value="">كل السنوات</option>
+          <option value="الأول الثانوي">الأول الثانوي</option>
+          <option value="الثاني الثانوي">الثاني الثانوي</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <section class="card table-card">
+    <div class="table-head">
+      <span class="count-badge">👥 عدد الطلاب المسجلين: <span class="n" id="countBig">0</span></span>
+      <span class="results" id="resultsCount">عرض 0</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="date">التاريخ <span class="arrow">▼</span></th>
+            <th data-sort="name">اسم الطالب <span class="arrow">↕</span></th>
+            <th data-sort="phone">رقم التليفون <span class="arrow">↕</span></th>
+            <th data-sort="username">بيانات الدخول <span class="arrow">↕</span></th>
+            <th data-sort="school">اسم المدرسة <span class="arrow">↕</span></th>
+            <th data-sort="studyWith">يحل معه <span class="arrow">↕</span></th>
+            <th data-sort="year">السنة <span class="arrow">↕</span></th>
+            <th data-sort="platform">المنصة <span class="arrow">↕</span></th>
+            <th data-sort="due">المطلوب <span class="arrow">↕</span></th>
+            <th data-sort="paid">المدفوع <span class="arrow">↕</span></th>
+            <th data-sort="remaining">المتبقي <span class="arrow">↕</span></th>
+            <th data-sort="status">الحالة <span class="arrow">↕</span></th>
+            <th class="no-sort no-print">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="credit">صمم الموقع المهندس أحمد حسن أبو السعود</div>
+    <div class="sub">جميع البيانات محفوظة تلقائياً على جهازك — يمكنك أخذ نسخة احتياطية في أي وقت</div>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="icon" id="mIcon">🗑️</div>
+    <h3 id="mTitle">تأكيد</h3>
+    <p id="mText">هل أنت متأكد؟</p>
+    <div class="acts">
+      <button class="btn danger" id="mYes">نعم، تأكيد</button>
+      <button class="btn ghost" id="mNo">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   سجل الطلاب والمدفوعات — تصميم: م. أحمد حسن أبو السعود
+   ============================================================ */
+
+const STORE_KEY = 'teacher_students_v1';
+const AUTH_KEY  = 'teacher_auth_v1';
+
+const VALID_USER = 'Admin Aboelsoud';
+const VALID_PASS = '182013*2010';
+
+let students = [];
+let editingId = null;
+let sortKey = 'date';
+let sortDir = -1;
+let statusFilter = 'all';
+let pendingDelete = null;
+
+const $ = id => document.getElementById(id);
+const tbody = $('tbody');
+const form = $('studentForm');
+const fName=$('fName'), fPhone=$('fPhone'), fUsername=$('fUsername'), fPassword=$('fPassword');
+const fSchool=$('fSchool'), fStudyWith=$('fStudyWith');
+const fYear=$('fYear'), fPlatform=$('fPlatform'), fDate=$('fDate');
+const fDue=$('fDue'), fPaid=$('fPaid'), fNotes=$('fNotes');
+const fSearch=$('fSearch'), fFilterYear=$('fFilterYear');
+const formTitle=$('formTitle'), btnSubmit=$('btnSubmit'), btnCancel=$('btnCancel');
+const platformField = $('platformField');
+
+/* ---------- أدوات ---------- */
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = Number(v); return isNaN(n) ? 0 : n; };
+const money = n => num(n).toLocaleString('en-US', {maximumFractionDigits:2}) + ' ج.م';
+const fmtDate = d => {
+  if (!d) return '—';
+  const p = String(d).split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+};
+const todayStr = () => new Date().toISOString().slice(0,10);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+function statusOf(s){
+  if (s.isFree) return 'free';
+  const due = num(s.due), paid = num(s.paid);
+  if (due > 0 && paid >= due) return 'paid';
+  if (paid > 0) return 'partial';
+  return 'unpaid';
+}
+const statusLabel = {
+  paid:'✔ مدفوع بالكامل',
+  partial:'◐ دفع جزئي',
+  unpaid:'✖ لم يدفع',
+  free:'🎁 باقة مجانية'
+};
+
+/* ---------- التخزين ---------- */
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    students = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(students)) students = [];
+  }catch(e){ students = []; }
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(students)); return true; }
+  catch(e){ toast('تعذّر الحفظ! مساحة التخزين ممتلئة', 'err'); return false; }
+}
+
+/* ---------- التوست ---------- */
+let toastTimer;
+function toast(msg, type='ok'){
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 2800);
+}
+
+/* ---------- المودال ---------- */
+function openModal({icon='🗑️', title='تأكيد', text='', okText='تأكيد', onOk}){
+  $('mIcon').textContent = icon;
+  $('mTitle').textContent = title;
+  $('mText').textContent = text;
+  $('mYes').textContent = okText;
+  pendingDelete = onOk;
+  $('overlay').classList.add('show');
+}
+function closeModal(){ $('overlay').classList.remove('show'); pendingDelete = null; }
+$('mYes').addEventListener('click', () => { if (pendingDelete) pendingDelete(); closeModal(); });
+$('mNo').addEventListener('click', closeModal);
+$('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ============================================================
+   تسجيل الدخول
+   ============================================================ */
+function showApp(){
+  $('loginScreen').classList.add('hidden');
+  $('app').classList.remove('locked');
+}
+function showLogin(){
+  $('loginScreen').classList.remove('hidden');
+  $('app').classList.add('locked');
+  $('lgUser').value = '';
+  $('lgPass').value = '';
+  $('loginError').classList.remove('show');
+  setTimeout(() => $('lgUser').focus(), 100);
+}
+$('loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const user = $('lgUser').value.trim();
+  const pass = $('lgPass').value;
+  if (user === VALID_USER && pass === VALID_PASS){
+    sessionStorage.setItem(AUTH_KEY, 'ok');
+    $('loginError').classList.remove('show');
+    showApp();
+    render();
+    toast('👋 أهلاً بك أستاذ أحمد');
+  } else {
+    $('loginError').classList.add('show');
+    const box = document.querySelector('.login-box');
+    box.style.animation = 'none';
+    void box.offsetHeight;
+    box.style.animation = 'pop .5s cubic-bezier(.2,1.3,.5,1)';
+    $('lgPass').value = '';
+    $('lgPass').focus();
+  }
+});
+$('btnLogout').addEventListener('click', () => {
+  openModal({
+    icon:'🚪', title:'تسجيل الخروج',
+    text:'هل أنت متأكد من تسجيل الخروج؟ بياناتك محفوظة بأمان.',
+    okText:'نعم، اخرج',
+    onOk(){ sessionStorage.removeItem(AUTH_KEY); showLogin(); }
+  });
+});
+
+/* ============================================================
+   التحكم في ظهور حقل المنصة
+   ============================================================ */
+function updatePlatformVisibility(){
+  const hasYear = !!fYear.value;
+  platformField.style.display = hasYear ? '' : 'none';
+  if (!hasYear) fPlatform.value = '';
+}
+fYear.addEventListener('change', updatePlatformVisibility);
+
+/* ============================================================
+   الإحصائيات
+   ============================================================ */
+function renderStats(){
+  let full=0, part=0, unpaid=0, free=0, collected=0, remaining=0;
+  students.forEach(s => {
+    const st = statusOf(s);
+    if (st === 'paid') full++;
+    else if (st === 'partial') part++;
+    else if (st === 'free') free++;
+    else unpaid++;
+    if (st !== 'free'){
+      collected += num(s.paid);
+      remaining += Math.max(num(s.due) - num(s.paid), 0);
+    }
+  });
+  $('stTotal').textContent     = students.length;
+  $('stPaid').textContent      = full;
+  $('stPartial').textContent   = part;
+  $('stUnpaid').textContent    = unpaid;
+  $('stFree').textContent      = free;
+  $('stCollected').textContent = money(collected);
+  $('stRemaining').textContent = money(remaining);
+  $('countBig').textContent    = students.length;
+  $('tabAll').textContent      = students.length;
+  $('tabPaid').textContent     = full;
+  $('tabPartial').textContent  = part;
+  $('tabUnpaid').textContent   = unpaid;
+  $('tabFree').textContent     = free;
+  document.querySelectorAll('.stat.clickable').forEach(el => {
+    el.classList.toggle('active', el.dataset.filter === statusFilter);
+  });
+}
+
+/* ============================================================
+   الترتيب
+   ============================================================ */
+function sortValue(s, key){
+  switch(key){
+    case 'due':       return num(s.due);
+    case 'paid':      return num(s.paid);
+    case 'remaining': return Math.max(num(s.due) - num(s.paid), 0);
+    case 'status':    return { unpaid:0, partial:1, paid:2, free:3 }[statusOf(s)];
+    case 'date':      return s.date || '';
+    case 'username':  return s.username || '';
+    case 'platform':  return s.platform || '';
+    case 'school':    return s.school || '';
+    case 'studyWith': return s.studyWith || '';
+    default:          return String(s[key] || '');
+  }
+}
+
+/* ============================================================
+   الفلترة
+   ============================================================ */
+function getFiltered(){
+  const q  = fSearch.value.trim().toLowerCase();
+  const qDigits = q.replace(/\s/g, '');
+  const y  = fFilterYear.value;
+  const list = students.filter(s => {
+    const name  = String(s.name || '').toLowerCase();
+    const phone = String(s.phone || '').replace(/\s/g, '');
+    const user  = String(s.username || '').toLowerCase();
+    const school = String(s.school || '').toLowerCase();
+    const studyWith = String(s.studyWith || '').toLowerCase();
+    const matchQ = !q || name.includes(q) || phone.includes(qDigits) || user.includes(q)
+                   || school.includes(q) || studyWith.includes(q);
+    const matchY = !y || (s.year || '') === y;
+    const matchS = statusFilter === 'all' || statusOf(s) === statusFilter;
+    return matchQ && matchY && matchS;
+  });
+  list.sort((a, b) => {
+    const av = sortValue(a, sortKey), bv = sortValue(b, sortKey);
+    let r;
+    if (typeof av === 'number' && typeof bv === 'number') r = av - bv;
+    else r = String(av).localeCompare(String(bv), 'ar');
+    if (r === 0) r = (a.createdAt || 0) - (b.createdAt || 0);
+    return r * sortDir;
+  });
+  return list;
+}
+
+/* ============================================================
+   رسم الجدول
+   ============================================================ */
+function render(){
+  const list = getFiltered();
+
+  if (!list.length){
+    const msg = students.length
+      ? (statusFilter === 'paid'    ? '✅ لا يوجد طلاب دفعوا بالكامل حتى الآن'
+       : statusFilter === 'partial' ? '◐ لا يوجد طلاب دفعوا جزئياً'
+       : statusFilter === 'unpaid'  ? '❌ لا يوجد طلاب لم يدفعوا — الجميع دفع!'
+       : statusFilter === 'free'    ? '🎁 لا يوجد طلاب لديهم باقة مجانية'
+       : '🔍 لا يوجد طلاب مطابقون للبحث')
+      : '📭 لا يوجد طلاب بعد — ابدأ بإضافة طالب من النموذج بالأعلى';
+    tbody.innerHTML = `<tr><td colspan="13" class="empty">${msg}</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(s => {
+      const st   = statusOf(s);
+      const isFree = !!s.isFree;
+      const due  = num(s.due);
+      const paid = num(s.paid);
+      const rest = Math.max(due - paid, 0);
+      const canPay = !isFree && due > 0 && paid < due;
+      const canUnpay = !isFree && paid > 0;
+
+      let loginHtml = '—';
+      if (s.username || s.password){
+        loginHtml = `<div class="login-cell">
+          ${s.username ? `<div class="u">👤 ${esc(s.username)}</div>` : ''}
+          ${s.password ? `<div class="p">🔑 ${esc(s.password)}</div>` : ''}
+        </div>`;
+      }
+
+      let platformHtml = '—';
+      if (s.platform){
+        if (s.platform === 'منصة كوريو'){
+          const isCurioMarked = (s.year === 'الأول الثانوي');
+          platformHtml = `<span class="badge curio">${isCurioMarked ? '✓ ' : ''}${esc(s.platform)}</span>`;
+        } else {
+          platformHtml = `<span class="badge culture">${esc(s.platform)}</span>`;
+        }
+      }
+
+      let nameExtra = '';
+      if (isFree) nameExtra += ` <span class="free-mark" title="باقة مجانية">🎁</span>`;
+      if (s.notes) nameExtra += ` <span title="${esc(s.notes)}" style="opacity:.6;font-size:12px">📝</span>`;
+
+      const dueCell   = isFree ? `<span class="money free">🎁 مجاني</span>` : `<span class="money due">${money(due)}</span>`;
+      const paidCell  = isFree ? `<span class="money free">🎁 مجاني</span>` : `<span class="money paid">${money(paid)}</span>`;
+      const restCell  = isFree ? `<span class="money free">—</span>` : (rest > 0 ? `<span class="money rest">${money(rest)}</span>` : `<span class="money rest">—</span>`);
+
+      const payButtons = isFree
+        ? ''
+        : `<button class="pay-btn pay" data-act="pay" ${canPay?'':'disabled'} title="تسجيل دفع كامل">💰 دفع</button>
+           <button class="pay-btn unpay" data-act="unpay" ${canUnpay?'':'disabled'} title="إلغاء الدفع">🚫 لم يدفع</button>`;
+
+      return `<tr data-id="${s.id}">
+        <td>${fmtDate(s.date)}</td>
+        <td class="name-cell">${esc(s.name)}${nameExtra}</td>
+        <td class="phone-cell">${s.phone ? esc(s.phone) : '—'}</td>
+        <td>${loginHtml}</td>
+        <td class="school-cell">${s.school ? esc(s.school) : '—'}</td>
+        <td class="study-cell">${s.studyWith ? esc(s.studyWith) : '—'}</td>
+        <td>${s.year ? esc(s.year) : '—'}</td>
+        <td>${platformHtml}</td>
+        <td>${dueCell}</td>
+        <td>${paidCell}</td>
+        <td>${restCell}</td>
+        <td><span class="badge ${st}">${statusLabel[st]}</span></td>
+        <td class="no-print">
+          <div class="row-actions">
+            ${payButtons}
+            <button class="mini freebtn ${isFree?'active':''}" data-act="free" title="${isFree ? 'إلغاء الباقة المجانية' : 'تفعيل الباقة المجانية'}">🎁</button>
+            <button class="mini" data-act="edit" title="تعديل البيانات">✏️</button>
+            <button class="mini del" data-act="del" title="حذف الطالب">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  $('resultsCount').textContent = `عرض ${list.length} من ${students.length}`;
+  document.querySelectorAll('thead th[data-sort]').forEach(th => {
+    th.classList.toggle('active', th.dataset.sort === sortKey);
+    const ar = th.querySelector('.arrow');
+    if (ar) ar.textContent = th.dataset.sort === sortKey ? (sortDir === 1 ? '▲' : '▼') : '↕';
+  });
+  renderStats();
+}
+
+/* ============================================================
+   عمليات CRUD
+   ============================================================ */
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = fName.value.trim();
+  if (!name){ toast('من فضلك اكتب اسم الطالب', 'err'); fName.focus(); return; }
+
+  const year = fYear.value;
+  const platform = year ? fPlatform.value : '';
+
+  const data = {
+    name,
+    phone: fPhone.value.trim(),
+    username: fUsername.value.trim(),
+    password: fPassword.value.trim(),
+    school: fSchool.value.trim(),
+    studyWith: fStudyWith.value.trim(),
+    year,
+    platform,
+    date: fDate.value || todayStr(),
+    due: num(fDue.value),
+    paid: num(fPaid.value),
+    notes: fNotes.value.trim()
+  };
+
+  if (data.due > 0 && data.paid > data.due){
+    toast('المبلغ المدفوع أكبر من المطلوب! تحقق من البيانات', 'err');
+    return;
+  }
+
+  if (editingId){
+    const i = students.findIndex(s => s.id === editingId);
+    if (i > -1) students[i] = { ...students[i], ...data };
+    toast('✅ تم تعديل بيانات الطالب بنجاح');
+    exitEditMode();
+  } else {
+    students.push({ id: uid(), ...data, isFree: false, createdAt: Date.now() });
+    toast('✅ تم إضافة الطالب: ' + name);
+  }
+
+  save();
+  render();
+  form.reset();
+  fDate.value = todayStr();
+  fDue.value = 0;
+  fPaid.value = 0;
+  platformField.style.display = 'none';
+  fName.focus();
+});
+
+function startEdit(id){
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  editingId = id;
+  fName.value      = s.name      || '';
+  fPhone.value     = s.phone     || '';
+  fUsername.value  = s.username  || '';
+  fPassword.value  = s.password  || '';
+  fSchool.value    = s.school    || '';
+  fStudyWith.value = s.studyWith || '';
+  fYear.value      = s.year      || '';
+  fPlatform.value  = s.platform  || '';
+  fDate.value      = s.date      || todayStr();
+  fDue.value       = num(s.due);
+  fPaid.value      = num(s.paid);
+  fNotes.value     = s.notes     || '';
+
+  updatePlatformVisibility();
+
+  formTitle.textContent = '✏️ تعديل بيانات: ' + s.name;
+  btnSubmit.textContent = '💾 حفظ التعديلات';
+  btnCancel.hidden = false;
+  form.scrollIntoView({ behavior:'smooth', block:'center' });
+  fName.focus();
+}
+
+function exitEditMode(){
+  editingId = null;
+  form.reset();
+  fDate.value = todayStr();
+  fDue.value = 0;
+  fPaid.value = 0;
+  platformField.style.display = 'none';
+  formTitle.textContent = '➕ إضافة طالب جديد';
+  btnSubmit.textContent = '➕ إضافة الطالب';
+  btnCancel.hidden = true;
+}
+btnCancel.addEventListener('click', () => { exitEditMode(); toast('تم إلغاء التعديل'); });
+
+function markPaid(id){
+  const s = students.find(x => x.id === id);
+  if (!s || s.isFree) return;
+  const due = num(s.due);
+  if (due <= 0){ toast('حدّد المبلغ المطلوب أولاً من زر التعديل ✏️', 'err'); return; }
+  s.paid = due;
+  save(); render();
+  toast('💰 تم تسجيل دفع كامل لـ ' + s.name);
+}
+
+function markUnpaid(id){
+  const s = students.find(x => x.id === id);
+  if (!s || s.isFree) return;
+  s.paid = 0;
+  save(); render();
+  toast('🚫 تم تعيين "' + s.name + '" كغير مدفوع');
+}
+
+function toggleFree(id){
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  if (s.isFree){
+    openModal({
+      icon:'❌', title:'إلغاء الباقة المجانية',
+      text:`سيتم إلغاء الباقة المجانية من الطالب "${s.name}" وسيعود للوضع الطبيعي. متابعة؟`,
+      okText:'نعم، ألغِ الباقة',
+      onOk(){
+        s.isFree = false;
+        save(); render();
+        toast('تم إلغاء الباقة المجانية من ' + s.name);
+      }
+    });
+  } else {
+    openModal({
+      icon:'🎁', title:'تفعيل الباقة المجانية',
+      text:`سيتم منح الطالب "${s.name}" باقة مجانية — لن يُطالَب بأي مبلغ. متابعة؟`,
+      okText:'نعم، فعّل الباقة',
+      onOk(){
+        s.isFree = true;
+        save(); render();
+        toast('🎁 تم منح "' + s.name + '" باقة مجانية', 'free');
+      }
+    });
+  }
+}
+
+function askDelete(id){
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  openModal({
+    icon:'🗑️', title:'تأكيد الحذف',
+    text:`سيتم حذف الطالب "${s.name}" نهائياً. هل أنت متأكد؟`,
+    okText:'نعم، احذف',
+    onOk(){
+      students = students.filter(x => x.id !== id);
+      if (editingId === id) exitEditMode();
+      save(); render();
+      toast('🗑️ تم حذف الطالب');
+    }
+  });
+}
+
+tbody.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-act]');
+  if (!btn || btn.disabled) return;
+  const id = btn.closest('tr').dataset.id;
+  const act = btn.dataset.act;
+  if (act === 'edit') startEdit(id);
+  else if (act === 'del') askDelete(id);
+  else if (act === 'pay') markPaid(id);
+  else if (act === 'unpay') markUnpaid(id);
+  else if (act === 'free') toggleFree(id);
+});
+
+/* ============================================================
+   البحث والفلترة والترتيب
+   ============================================================ */
+let searchTimer;
+fSearch.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(render, 120);
+});
+fFilterYear.addEventListener('change', render);
+
+document.querySelectorAll('.status-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const st = tab.dataset.status;
+    statusFilter = st;
+    document.querySelectorAll('.status-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.status === st);
+    });
+    render();
+    const names = { all:'كل الطلاب', paid:'الذين دفعوا بالكامل', partial:'الذين دفعوا جزئياً', unpaid:'الذين لم يدفعوا', free:'أصحاب الباقة المجانية' };
+    toast('🔎 ' + names[st], 'info');
+  });
+});
+
+document.querySelectorAll('.stat.clickable').forEach(card => {
+  card.addEventListener('click', () => {
+    const f = card.dataset.filter;
+    statusFilter = f;
+    document.querySelectorAll('.status-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.status === f);
+    });
+    render();
+    const names = { all:'كل الطلاب', paid:'الذين دفعوا بالكامل', partial:'الذين دفعوا جزئياً', unpaid:'الذين لم يدفعوا', free:'أصحاب الباقة المجانية' };
+    toast('🔎 ' + names[f], 'info');
+  });
+});
+
+document.querySelectorAll('thead th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = key === 'date' ? -1 : 1; }
+    render();
+  });
+});
+
+/* ============================================================
+   التصدير والاستيراد
+   ============================================================ */
+function download(filename, content, type){
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+$('btnCsv').addEventListener('click', () => {
+  const list = getFiltered();
+  if (!list.length){ toast('لا توجد بيانات للتصدير', 'err'); return; }
+  const head = ['التاريخ','اسم الطالب','رقم التليفون','اسم المستخدم','كلمة المرور','اسم المدرسة','يحل معه','السنة الدراسية','المنصة','المطلوب','المدفوع','المتبقي','الحالة','ملاحظات'];
+  const rows = list.map(s => {
+    const isFree = !!s.isFree;
+    const due = num(s.due), paid = num(s.paid);
+    return [
+      fmtDate(s.date), s.name, s.phone||'', s.username||'', s.password||'',
+      s.school||'', s.studyWith||'', s.year||'', s.platform||'',
+      isFree ? 'مجاني' : due,
+      isFree ? 'مجاني' : paid,
+      isFree ? '—' : Math.max(due-paid,0),
+      statusLabel[statusOf(s)].replace(/[✔✖◐🎁]\s?/g,''),
+      s.notes||''
+    ];
+  });
+  const csv = '\uFEFF' + [head, ...rows]
+    .map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(','))
+    .join('\r\n');
+  download(`سجل_الطلاب_${todayStr()}.csv`, csv, 'text/csv;charset=utf-8;');
+  toast('📊 تم تصدير الملف — يفتح ببرنامج Excel');
+});
+
+$('btnBackup').addEventListener('click', () => {
+  if (!students.length){ toast('لا توجد بيانات لأخذ نسخة', 'err'); return; }
+  const backup = {
+    app: 'سجل الطلاب - م. أحمد حسن أبو السعود',
+    exportedAt: new Date().toISOString(),
+    count: students.length,
+    students
+  };
+  download(`نسخة_احتياطية_${todayStr()}.json`, JSON.stringify(backup, null, 2), 'application/json');
+  toast('💾 تم إنشاء النسخة الاحتياطية');
+});
+
+$('btnImport').addEventListener('click', () => $('fileInput').click());
+$('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      const arr = Array.isArray(parsed) ? parsed : parsed.students;
+      if (!Array.isArray(arr)) throw new Error('bad');
+      const clean = arr.filter(s => s && s.name).map(s => ({
+        id: s.id || uid(),
+        name: String(s.name),
+        phone: String(s.phone || ''),
+        username: String(s.username || ''),
+        password: String(s.password || ''),
+        school: String(s.school || ''),
+        studyWith: String(s.studyWith || ''),
+        year: String(s.year || ''),
+        platform: String(s.platform || ''),
+        date: s.date || todayStr(),
+        due: num(s.due),
+        paid: num(s.paid),
+        notes: String(s.notes || ''),
+        isFree: !!s.isFree,
+        createdAt: s.createdAt || Date.now()
+      }));
+      openModal({
+        icon:'📂', title:'استيراد نسخة احتياطية',
+        text:`تم العثور على ${clean.length} طالب. سيتم استبدال البيانات الحالية (${students.length} طالب). متابعة؟`,
+        okText:'نعم، استورد',
+        onOk(){
+          students = clean; save(); render();
+          toast('📂 تم استيراد البيانات بنجاح');
+        }
+      });
+    }catch(err){ toast('❌ الملف غير صالح', 'err'); }
+  };
+  reader.readAsText(file, 'UTF-8');
+  e.target.value = '';
+});
+
+$('btnPrint').addEventListener('click', () => window.print());
+
+/* ============================================================
+   تشغيل
+   ============================================================ */
+load();
+fDate.value = todayStr();
+
+if (sessionStorage.getItem(AUTH_KEY) === 'ok'){
+  showApp();
+  render();
+  if (students.length){
+    setTimeout(() => toast(`👋 مرحباً بعودتك! لديك ${students.length} طالب محفوظ`), 400);
+  }
+}else{
+  showLogin();
+  render();
+}
+</script>
+</body>
+</html>
